@@ -1,11 +1,11 @@
 
-# Hal9000  I am a simulated HAL from 2001
+# Hal9000  I am a simulated HAL from the movie 2001
 # based on ELIZA 
 # The original version of ELIZA was created by Dr. Joseph Weizenbaum of MIT in the mid 1960's in Lisp?
 # Joe Strout of MIT created an initial a Python version
 # Evan Dempsey made additional enhancements 
 #-----------------------------------
-# Melvyn Feuerman made a version to of ELIZA to run under Twillio using Evan's code and added some new features
+# Melvyn Feuerman made a version to of Hal9000 to run under Twillio using Evan's code and added some new features
 # and he made some additional features
 # -------------------------------------------------------------------------------------------
 # The ELIZA program is started by sending a text message with a first name to a Twillio number -- for test purposes the number is 516-469-3763
@@ -274,7 +274,7 @@ psychobabble = [
 SECRET_KEY  = 'a secret key'
 app  = Flask(__name__)
 app.config.from_object(__name__)
-# program name = eliza7
+# program name = hal9000
 
 @app.route("/sms", methods=['POST'])
  
@@ -294,9 +294,9 @@ def main():
 
    try:
          
-      db = dbm.open('elizadatabase', 'r')
+      db = dbm.open('HAL9000DB', 'c')
       print ( db[phone_number])
-      print ( ' phone number is in databse')
+      print ( ' phone number is in hal9000 databse')
                    
       first_name = db[phone_number]   
       first_name = first_name.decode('ASCII')
@@ -305,7 +305,7 @@ def main():
       db.close
     
    except:
-      db = dbm.open('elizadatabase', 'w')
+      db = dbm.open('HAL9000DB', 'c')
       db[phone_number] = body
         
       print (phone_number, "  added to  the database")
@@ -322,7 +322,7 @@ def main():
    body = request.form['Body']
 
    if  profanity(body):
-       respmsg  =  str(first_name) + " I do not speak to people who use profanity ; I am ending our session; please take a timeout and start over later. Send me HI when you ready "
+       respmsg  =  str(first_name) + " Hal9000 does not dialog  in profanity ; I am ending our session; please take a timeout and start over later. Send me HI when you ready "
        print (' body is in profane  in main program')
        resp.message(respmsg)
        db.close
@@ -344,7 +344,7 @@ def main():
    print  (  'phone number' , phone_number , 'body' , body)
    print (' session count',session['counter'])
    if session['counter'] == 1 :
-         respmsg1  =       str(first_name) + " , Welcome back for another session \n I missed you!"
+         respmsg1  =       str(first_name) + " , Welcome back to the mission\n I missed you!"
          respmsg3 =""
          print ("Hello. How are you feeling today?")
          if (new_client == True)  :
