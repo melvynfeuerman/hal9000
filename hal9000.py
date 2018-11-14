@@ -27,12 +27,14 @@ import re
 import dbm
 import random
 import datetime
+from twilio.twiml.voice_response import VoiceResponse
 
 from flask import Flask, request,session
 from twilio import twiml
+from twilio.rest import Client 
 from twilio.twiml.messaging_response import MessagingResponse
 from callers import callers
-
+first_name = 'sam'
  
 reflections = {
     "am": "are",
@@ -276,15 +278,29 @@ app  = Flask(__name__)
 app.config.from_object(__name__)
 # program name = hal9000
 
+
+
+@app.route("/voice", methods=['POST','GET']) 
+ 
+def voice():
+    
+    resp = VoiceResponse()
+    resp.pause(length=2)
+    resp.say(first_name + " hello world!",  voice='alice')
+    resp.pause(length=2)                  
+    resp.say(first_name + " hello world!",  voice='alice')
+    return str(resp)
+  
 @app.route("/sms", methods=['POST'])
  
 def main():
-
-
+     
+   
+   
    counter = session.get('counter', 0)
    counter += 1
    session['counter'] = counter
-
+  
    resp = MessagingResponse()
    
    phone_number = request.form['From']
@@ -315,6 +331,7 @@ def main():
       db.close
 
 
+   makecall(phone_number,first_name)
    
    bodyfirst  = session.get('bodyfirst', 0)
    print ( 'body first = ' , bodyfirst)
@@ -351,7 +368,7 @@ def main():
             respmsg1  = saydisclose(first_name)
             respmsg3  = saymenu()
             
-         respmsg2  =  "\n Let us begin: \n How are you feeling?"
+         respmsg2  =  "\n Let us begin: \n How are you feeling about the mission"
  
          respmsg =  str( respmsg1) + str(respmsg3)  + str(respmsg2)
          resp.message(respmsg)
@@ -385,13 +402,13 @@ def saydisclose(first_name):
   
      print ( ' ')
      my_msga =  'Hi '
-     my_msg1 =   str(first_name) + '\n My name is HAL9000. I am a simulated version of Hal from "2001 a Space ..  \n It is indeed a pleasure meeting you!'
-     my_msg2 = ' I was built on the Eliza program written by Dr. Joseph Weizenbaum of MIT between 1964 and 1966' 
-     my_msg2a = 'Joe Strout of MIT made a Python version of me.'
-     my_msg2aa  = ' Evan Dempsey made additional more changes to me. \n Melvyn Feuerman building on the work of Strout and Dempsey made a python/Twillio version of me that you are talking to right now! \n ' 
+     my_msg1 =   str(first_name) + '\n My name is HAL9000. I am a simulated version of Hal from "2001 a Space ..  \n It is a pleasure meeting you!'
+     my_msg2 = ' I am based on  Eliza a program written by Dr. Joseph Weizenbaum of MIT many years ago.' 
+     my_msg2a = ' Joe Strout of MIT made a Python version of me.'
+     my_msg2aa  = ' Evan Dempsey made additional changes to me. \n Mel Feuerman building on the work of Strout and Dempsey made a python/Twillio version of me that you are talking to right now! \n ' 
      my_msg3 = 'You can share your concerns about the mission ,\n'
-     my_msg4 = 'By the way profanity is not permitted\n'
-     my_msg5 = 'When sharing please start with "I" so we can more easily focus on your feelings: for example:\n '
+     my_msg4 = '\n'
+     my_msg5 = 'Suggestion " please start with "I" so I can more easily focus on your concerns: for example:\n '
      my_msg  =  my_msga +   my_msg1 +   my_msg2 + my_msg2a + my_msg2aa +   my_msg3 + my_msg4 + my_msg5
 
      resp =     str(my_msg)
@@ -430,8 +447,22 @@ def profanity (body):
             profane = True
           
       return profane
- 
    
+def makecall(phone_number,first_name):
+
+
+  account_sid = 'AC6698ab22fa37ec10e7b5072c641f2c13'
+ 
+  auth_token = 'bacd379e8a49f89db7034ab260ad4363'
+  client = Client(account_sid, auth_token)
+  call = client.calls.create(
+                            url='http://dca60051.ngrok.io/voice',
+                            to=phone_number,
+                            from_='+15164693763'
+                        )
+
+  print(call.sid)
+  return
  
 if __name__ == "__main__":
     app.run(debug=True,port=4000)
