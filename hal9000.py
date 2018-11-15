@@ -18,7 +18,7 @@
 #  5. Eliza "duplicate" detects "replies" by the caller and will force an end to a session if she detects a dupicate
 #  6. Eliza now replies with helpfull "web links" when the caller enters some keywords like "depression"
 #
-# program name = eliza  october 31, 2019
+# program name = eliza  November 14, 2019
 # added dbm logic
 
 
@@ -286,17 +286,20 @@ def voice():
     
     resp = VoiceResponse()
     resp.pause(length=2)
-    resp.say(first_name + " hello world!",  voice='alice')
-    resp.pause(length=2)                  
-    resp.say(first_name + " hello world!",  voice='alice')
+    resp.say(first_name + " This is Hal your on 2001 on board computer - I am so Glad to meet you ! ",  voice='alice')
+    resp.pause(length=1)                  
+    resp.say(first_name + " Please tell me how can I help you? ",  voice='alice')
+    resp.pause(length=1)
+    resp.say(first_name + " You can text me your concerns about the mission and I will call you back on a secure line ",  voice='alice')
+    resp.pause(length=4)
     return str(resp)
   
 @app.route("/sms", methods=['POST'])
  
 def main():
      
-   
-   
+   global first_name 
+
    counter = session.get('counter', 0)
    counter += 1
    session['counter'] = counter
@@ -456,7 +459,7 @@ def makecall(phone_number,first_name):
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://dca60051.ngrok.io/voice',
+                            url='http://5e9a078d.ngrok.io/voice',
                             to=phone_number,
                             from_='+15164693763'
                         )
