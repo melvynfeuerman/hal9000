@@ -1,4 +1,5 @@
-
+# Hal900A  Version A
+# Add Voice1 and Make1call for general responses
 # Hal9000  I am a simulated HAL from the movie 2001
 # based on ELIZA 
 # The original version of ELIZA was created by Dr. Joseph Weizenbaum of MIT in the mid 1960's in Lisp?
@@ -8,19 +9,8 @@
 # Melvyn Feuerman made a version to of Hal9000 to run under Twillio using Evan's code and added some new features
 # and he made some additional features
 # -------------------------------------------------------------------------------------------
-# The ELIZA program is started by sending a text message with a first name to a Twillio number -- for test purposes the number is 516-469-3763
-#  1. For example when I texted ELIZA it texted  MEL to 516 469 3763
-#  2. Eliza stores the patient's name and phone number in a dbm database. This allows Eliza to get the callers name for the next session
-#     The caller's name appears in the response by ELIZA whenever she speaks to a patient
-#     
-#  3  ELIZA displays a  disclosure about Eliza the first time ELIZA is used by the caller
-#  4. The ELIZA checks for profanity using an internal table
-#  5. Eliza "duplicate" detects "replies" by the caller and will force an end to a session if she detects a dupicate
-#  6. Eliza now replies with helpfull "web links" when the caller enters some keywords like "depression"
-#
-# program name = eliza  November 14, 2019
-# added dbm logic
 
+#
 
 
 import re
@@ -35,6 +25,7 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from callers import callers
 first_name = 'sam'
+vr_message= ' '
  
 reflections = {
     "am": "are",
@@ -293,13 +284,26 @@ def voice():
     resp.say(first_name + " You can text me your concerns about the mission and I will call you back on a secure line ",  voice='alice')
     resp.pause(length=4)
     return str(resp)
-  
+
+@app.route("/voice1", methods=['POST','GET'])
+
+def voice1():
+    
+    resp = VoiceResponse()
+    
+    resp.say(first_name + " Ok  ",  voice='alice')
+    resp.pause(length=2)
+    resp.say((first_name +  vr_message),  voice='alice')
+    resp.pause(length=1)                  
+    return str(resp)
+
+
 @app.route("/sms", methods=['POST'])
  
 def main():
      
    global first_name 
-
+   global vr_message 
    counter = session.get('counter', 0)
    counter += 1
    session['counter'] = counter
@@ -321,6 +325,7 @@ def main():
       first_name = first_name.decode('ASCII')
       print ( " first name is " , first_name)
       new_client = False
+      makecall(phone_number,first_name)
       db.close
     
    except:
@@ -333,11 +338,7 @@ def main():
       new_client = True
       db.close
 
-
-   makecall(phone_number,first_name)
-   
-   bodyfirst  = session.get('bodyfirst', 0)
-   print ( 'body first = ' , bodyfirst)
+ 
    
    body = request.form['Body']
 
@@ -348,14 +349,7 @@ def main():
        db.close
        session.clear() 
        return str(resp)
-   if bodyfirst == body :       
-      print ( ' duplicate message')
-      session['bodyfirst'] = body
-      respmsg  =  str(first_name)  +  " ,I am sorry you seem to be repeating yourself .. I am ending our session for now! Please take a time out and start over later. Send me HI when you are ready!"
-      db.close
-      resp.message(respmsg)
-      session.clear() 
-      return str(resp)
+ 
 
    session['bodyfirst'] = body
  
@@ -389,6 +383,8 @@ def main():
         
         respmsg =  str(first_name) + str(blank)  + (analyze(statement))
         resp.message(respmsg)
+        vr_message = (analyze(statement))
+        makecall1(phone_number,first_name)
         return str(resp)
         
 def reflect(fragment):
@@ -450,19 +446,33 @@ def profanity (body):
             profane = True
           
       return profane
-   
-def makecall(phone_number,first_name):
 
+
+
+
+def makecall1(phone_number,first_name):
+
+  print ( ' in makecall1' )
+  account_sid = 'AC6698ab22fa37ec10e7b5072c641f2c13'
+ 
+  auth_token = 'bacd379e8a49f89db7034ab260ad4363'
+  client = Client(account_sid, auth_token)
+  call = client.calls.create(
+                            url='http://5b4d89a6.ngrok.io/voice1',
+                            to=phone_number,
+                            from_='+15164693763'
+                        )   
+def makecall(phone_number,first_name):
 
   account_sid = 'AC6698ab22fa37ec10e7b5072c641f2c13'
  
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://5e9a078d.ngrok.io/voice',
+                            url='http://5b4d89a6.ngrok.io/voice',
                             to=phone_number,
                             from_='+15164693763'
-                        )
+                      )
 
   print(call.sid)
   return
