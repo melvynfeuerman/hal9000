@@ -25,7 +25,7 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from callers import callers
 first_name = 'sam'
-vr_message= ' '
+vr_message = ' '
  
 reflections = {
     "am": "are",
@@ -283,6 +283,8 @@ def voice():
     resp.pause(length=1)
     resp.say(first_name + " You can text me your concerns about the mission and I will call you back on a secure line ",  voice='alice')
     resp.pause(length=4)
+    resp.say((first_name +  vr_message),  voice='alice')
+    resp.pause(length=1)                  
     return str(resp)
 
 @app.route("/voice1", methods=['POST','GET'])
@@ -290,7 +292,9 @@ def voice():
 def voice1():
     
     resp = VoiceResponse()
-    
+    resp.say(first_name + " This is Hal your on 2001 again- I am  Glad to help ! ",  voice='alice')
+    resp.pause(length=1)                  
+
     resp.say(first_name + " Ok  ",  voice='alice')
     resp.pause(length=2)
     resp.say((first_name +  vr_message),  voice='alice')
@@ -458,10 +462,16 @@ def makecall1(phone_number,first_name):
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://5b4d89a6.ngrok.io/voice1',
+                            url='http://1ea5b89b.ngrok.io/voice1',
                             to=phone_number,
                             from_='+15164693763'
-                        )   
+                        )
+   
+                         
+  print(call.sid)
+  return                            
+
+                             
 def makecall(phone_number,first_name):
 
   account_sid = 'AC6698ab22fa37ec10e7b5072c641f2c13'
@@ -469,7 +479,7 @@ def makecall(phone_number,first_name):
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://5b4d89a6.ngrok.io/voice',
+                            url='http://1ea5b89b.ngrok.io/voice',
                             to=phone_number,
                             from_='+15164693763'
                       )
