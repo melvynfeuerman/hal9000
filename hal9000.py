@@ -1,5 +1,6 @@
-# Hal900A  Version A
+# Hal9000A  Version A
 # Add Voice1 and Make1call for general responses
+# added logic to lay music2001
 # Hal9000  I am a simulated HAL from the movie 2001
 # based on ELIZA 
 # The original version of ELIZA was created by Dr. Joseph Weizenbaum of MIT in the mid 1960's in Lisp?
@@ -26,6 +27,8 @@ from twilio.twiml.messaging_response import MessagingResponse
 from callers import callers
 first_name = 'sam'
 vr_message = ' '
+
+
  
 reflections = {
     "am": "are",
@@ -274,31 +277,51 @@ app.config.from_object(__name__)
 @app.route("/voice", methods=['POST','GET']) 
  
 def voice():
-    
-    resp = VoiceResponse()
+
+  
+ resp = VoiceResponse()
+
+
+ print ( ' counter = ' , counter)
+ if counter == 1 :  
+    print (' in voice routine   counter = 0' )
+    resp.play('https://flavescent-crocodile-9355.twil.io/assets/2001music%20copy.mp3')
     resp.pause(length=2)
     resp.say(first_name + " This is Hal your on 2001 on board computer - I am so Glad to meet you ! ",  voice='alice')
+ 
     resp.pause(length=1)                  
     resp.say(first_name + " Please tell me how can I help you? ",  voice='alice')
     resp.pause(length=1)
     resp.say(first_name + " You can text me your concerns about the mission and I will call you back on a secure line ",  voice='alice')
-    resp.pause(length=4)
-    resp.say((first_name +  vr_message),  voice='alice')
-    resp.pause(length=1)                  
+    resp.pause(length=2)
+ 
+    return str(resp)
+ if counter  > 1:
+    print (' in voice routine   counter > 1' )
+    resp.pause(length=2)
+ 
+    resp.say(first_name,  voice='alice')
+ 
+    print (' in voice routine  > 1' )
+
+    resp.pause(length=1)
+    resp.say(vr_message,  voice='alice')
+    print (' still in voice routine  > 1')
+    resp.pause(length=1)
     return str(resp)
 
 @app.route("/voice1", methods=['POST','GET'])
 
 def voice1():
-    
+
     resp = VoiceResponse()
-    resp.say(first_name + " This is Hal your on 2001 again- I am  Glad to help ! ",  voice='alice')
+    resp.say(first_name + " This is Hal your on 2001 again- I am  glad to help ! ",  voice='alice')
     resp.pause(length=1)                  
 
-    resp.say(first_name + " Ok  ",  voice='alice')
-    resp.pause(length=2)
+    resp.say(first_name + " ok  ",  voice='alice')
+    resp.pause(length=5)
     resp.say((first_name +  vr_message),  voice='alice')
-    resp.pause(length=1)                  
+    resp.pause(length=3)                  
     return str(resp)
 
 
@@ -307,11 +330,11 @@ def voice1():
 def main():
      
    global first_name 
-   global vr_message 
+   global vr_message
+   global counter
    counter = session.get('counter', 0)
    counter += 1
    session['counter'] = counter
-  
    resp = MessagingResponse()
    
    phone_number = request.form['From']
@@ -346,18 +369,6 @@ def main():
    
    body = request.form['Body']
 
-   if  profanity(body):
-       respmsg  =  str(first_name) + " Hal9000 does not dialog  in profanity ; I am ending our session; please take a timeout and start over later. Send me HI when you ready "
-       print (' body is in profane  in main program')
-       resp.message(respmsg)
-       db.close
-       session.clear() 
-       return str(resp)
- 
-
-   session['bodyfirst'] = body
- 
- 
    
    print  (  'phone number' , phone_number , 'body' , body)
    print (' session count',session['counter'])
@@ -388,7 +399,7 @@ def main():
         respmsg =  str(first_name) + str(blank)  + (analyze(statement))
         resp.message(respmsg)
         vr_message = (analyze(statement))
-        makecall1(phone_number,first_name)
+        makecall(phone_number,first_name)
         return str(resp)
         
 def reflect(fragment):
@@ -436,20 +447,6 @@ def analyze(statement):
         if match:
             response = random.choice(responses)
             return response.format(*[reflect(g) for g in match.groups()])
-         
-def profanity (body):
-#    import badwords
-      badwords = ['fuck','bitch','shit']
-      profane  =  False
-      print ( ' check for profanity' )
-      print ( ' body = ' , body)
-      tokens = body.lower().split()
-      for i, token in enumerate(tokens):
-         if token in badwords :
-            print ( 'bad word' )
-            profane = True
-          
-      return profane
 
 
 
@@ -462,11 +459,12 @@ def makecall1(phone_number,first_name):
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://1ea5b89b.ngrok.io/voice1',
+                            url= 'http://1d71b8de.ngrok.io/voice1',
                             to=phone_number,
                             from_='+15164693763'
                         )
-   
+
+
                          
   print(call.sid)
   return                            
@@ -479,10 +477,11 @@ def makecall(phone_number,first_name):
   auth_token = 'bacd379e8a49f89db7034ab260ad4363'
   client = Client(account_sid, auth_token)
   call = client.calls.create(
-                            url='http://1ea5b89b.ngrok.io/voice',
+                            url='http://1d71b8de.ngrok.io/voice',
                             to=phone_number,
                             from_='+15164693763'
-                      )
+                       )
+
 
   print(call.sid)
   return
